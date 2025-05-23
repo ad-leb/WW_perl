@@ -1,29 +1,31 @@
 #! /usr/bin/perl
-#use lib qq($ENV{DOCUMENT_ROOT}/include);
-use lib q(include);
+use lib qq($ENV{DOCUMENT_ROOT}/include);
+#use lib q(include);
 use Html;
-use Data::Dumper;
+#use Data::Dumper;
 
 
 
-my $head = Html->get_head;
-my $body = Html->get_body;
+my ($html, $head, $body) = Html->page;
 
+$head->push(
+	Html->meta(0, charset => q(utf-8))
+);
+$body->push(
+	Html->hr,
+	Html->h2(
+		q(Привет!), 
+		style => q(color: green)
+	),
+	Html->hr
+);
 
-$head->push(Html->meta(q(), charset => q(utf-8)));
-$head->unshift(Html->title(q(How is it going?)));
-
-$body->push(Html->h1(q(Hi!), style => q(color: blue)));
-$body->push(Html->h1(q(Hi!), style => q(color: green)));
-$body->push(Html->h1(q(Hi!), style => q(color: red)));
-$body->push(Html->br(q()));
-$body->push(Html->hr(q()));
 
 
 
 
 print qq(Content-Type: text/html\r\n\r\n);
-print Html->to_text;
+print STDOUT $html->to_text;
 
 
 

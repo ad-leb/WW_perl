@@ -1,9 +1,12 @@
 package Xml;
-use Data::Dumper;
 
 
 
 our $AUTOLOAD;
+our @dtd = qw(
+	DOCTYPE
+	xml
+);
 
 
 
@@ -22,14 +25,15 @@ sub AUTOLOAD
 	$obj->{_content} = $content;
 	$obj->{$_} = $param{$_} foreach (keys %param);
 
+	$obj->{_name} = qq(!$name) if grep /^$name$/i, @dtd;
+
 	bless $obj, $self;
 }
-sub DESTROY
-{
-	my ($this) = @_;
+sub DESTROY										{ undef $_[0] }
 
-	undef $this;
-}
+
+
+
 
 
 
@@ -42,29 +46,44 @@ sub shift										{ shift $_[0]->{_content}->@* }
 
 
 
-sub _to_text
+
+
+
+
+sub to_text
 {
-	my ($obj) = @_;
+	my ($this) = @_;
 	my $txt;
 
-	return $obj if !ref $obj;
-	foreach my $el ($obj->@*)
-	{
-		$txt .= qq(<$el->{_name});
-		map {
-			$txt .= qq( $_);
-			$el->{$_} and $txt .= qq(="$el->{$_}")
-		} grep /^[a-zA-Z]/, keys $el->%*;
-		$txt .= q(>);
+	return $this if !ref $this;
+	return map $_->to_text, $this->{_content}->@* if $this->{_name} eq q(_);
 
-		next if ( $el->{_single} );
-
-		$txt .= _to_text($el->{_content});
-		$txt .= qq(</$el->{_name}>);
+	$txt .= qq(<$this->{_name});
+	map {
+		$txt .= qq( $_);
+		$this->{$_} and $txt .= qq(="$this->{$_}")
+	} grep /^[a-zA-Z]/, keys $this->%*;
+	$txt .= q(>);
+	
+	unless ( $this->{_single} ) {
+		ref $this->{_content}
+			and	$txt .= join q(), map { $_->to_text } $this->{_content}->@*
+			or	$txt .= $this->{_content}
+		;
+		$txt .= qq(</$this->{_name}>);
 	}
 
 	return $txt;
 }
+
+
+
+
+
+
+
+
+
 
 
 

@@ -5,31 +5,8 @@ use parent Xml;
 
 
 our $AUTOLOAD;
-our $base = [
-	{
-		_name					=> q(!DOCTYPE),
-		_single					=> 1,
-		html					=> q(),
-	},
-	{
-		_name					=> q(html),
-		_single					=> 0,
-		_content				=> [
-		{
-			_name				=> q(head),
-			_single				=> 0,
-			_content			=> [],
-		},
-		{
-			_name				=> q(body),
-			_single				=> 0,
-			_content			=> [],
-		},
-		],
-	},
-];
 our @single_tag = qw(
-	!DOCTYPE
+	DOCTYPE
 	area
 	base
 	basefont
@@ -54,6 +31,10 @@ our @single_tag = qw(
 
 
 
+
+
+
+
 sub AUTOLOAD
 {
 	my ($self, $content, %param) = @_;
@@ -70,11 +51,23 @@ sub AUTOLOAD
 
 
 
-sub get_page									{ bless $base, $_[0] }
-sub get_head									{ bless $base->[1]{_content}[0], $_[0] }
-sub get_body									{ bless $base->[1]{_content}[1], $_[0] }
+sub page
+{ 
+	my $page = $_[0]->_([
+		$_[0]->DOCTYPE(0, html),
+		$_[0]->html([
+			$_[0]->head,
+			$_[0]->body
+		])
+	]);
+	my $head = $page->head, 
+	my $body = $page->body;
 
-sub to_text										{ _to_text($_[0]->get_page) }
+	return $page, $head, $body;
+}
+sub head										{ (ref $_[0]) ? $_[0]->{_content}[1]{_content}[0] : $_[0]->SUPER::head }
+sub body										{ (ref $_[0]) ? $_[0]->{_content}[1]{_content}[1] : $_[0]->SUPER::body }
+
 
 
 
