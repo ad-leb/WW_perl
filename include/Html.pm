@@ -1,7 +1,5 @@
 package Html;
-
-use constant SINGLE				=> 0;
-use constant DOUBLE				=> 1;
+use parent Xml;
 
 
 
@@ -9,28 +7,49 @@ use constant DOUBLE				=> 1;
 our $AUTOLOAD;
 our $base = [
 	{
-		_type					=> SINGLE,
 		_name					=> q(!DOCTYPE),
+		_single					=> 1,
 		html					=> q(),
 	},
 	{
-		_type					=> DOUBLE,
 		_name					=> q(html),
+		_single					=> 0,
 		_content				=> [
 		{
-			_type				=> DOUBLE,
 			_name				=> q(head),
+			_single				=> 0,
 			_content			=> [],
 		},
 		{
-			_type				=> DOUBLE,
 			_name				=> q(body),
+			_single				=> 0,
 			_content			=> [],
 		},
 		],
 	},
 ];
-
+our @single_tag = qw(
+	!DOCTYPE
+	area
+	base
+	basefont
+	bgsound
+	br
+	col
+	command
+	embed
+	hr
+	img
+	input
+	isindex
+	keygen
+	link
+	meta
+	param
+	source
+	track
+	wbr
+);
 
 
 
@@ -38,23 +57,16 @@ our $base = [
 sub AUTOLOAD
 {
 	my ($self, $content, %param) = @_;
-	my ($class, $name) = ($AUTOLOAD =~ /(.*)::(.*)$/);
-	my $type = ($content) ? DOUBLE : SINGLE;
-	my $obj;
+	my $name = ($AUTOLOAD =~ /.*::(.*)$/)[0];
+	my $req = qq(SUPER::$name);
 
-	$obj->{_type} = $type;
-	$obj->{_name} = $name;
-	$obj->{_content} = $content;
-	$obj->{$_} = $param{$_} foreach (keys %param);
+	$param{_single}++ if grep /$name/, @single_tag;
 
-	bless $obj, $class;
+	$self->$req($content, %param);
 }
-sub DESTROY
-{
-	my ($this) = @_;
 
-	undef $this;
-}
+
+
 
 
 
@@ -62,38 +74,7 @@ sub get_page									{ bless $base, $_[0] }
 sub get_head									{ bless $base->[1]{_content}[0], $_[0] }
 sub get_body									{ bless $base->[1]{_content}[1], $_[0] }
 
-sub push										{ push $_[0]->{_content}->@*, $_[1] }
-sub pop											{ pop $_[0]->{_content}->@*, $_[1] }
-sub unshift										{ unshift $_[0]->{_content}->@*, $_[1] }
-sub shift										{ shift $_[0]->{_content}->@*, $_[1] }
-
 sub to_text										{ _to_text($_[0]->get_page) }
-
-
-
-
-sub _to_text
-{
-	my ($obj) = @_;
-	my $txt;
-
-	return $obj if !ref $obj;
-	foreach my $el ($obj->@*)
-	{
-		$txt .= qq(<$el->{_name});
-		map {
-			$txt .= qq( $_);
-			$el->{$_} and $txt .= qq(="$el->{$_}")
-		} grep /^[a-zA-Z]/, keys $el->%*;
-		$txt .= q(>);
-		if ( $el->{_type} == DOUBLE ) {
-			$txt .= _to_text($el->{_content});
-			$txt .= qq(</$el->{_name}>);
-		}
-	}
-
-	return $txt;
-}
 
 
 

@@ -1,6 +1,6 @@
 #! /usr/bin/perl
-use lib qq($ENV{DOCUMENT_ROOT}/include);
-#use lib q(include);
+#use lib qq($ENV{DOCUMENT_ROOT}/include);
+use lib q(include);
 use Html;
 use Data::Dumper;
 
@@ -16,6 +16,8 @@ $head->unshift(Html->title(q(How is it going?)));
 $body->push(Html->h1(q(Hi!), style => q(color: blue)));
 $body->push(Html->h1(q(Hi!), style => q(color: green)));
 $body->push(Html->h1(q(Hi!), style => q(color: red)));
+$body->push(Html->br(q()));
+$body->push(Html->hr(q()));
 
 
 
