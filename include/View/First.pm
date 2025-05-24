@@ -4,13 +4,6 @@ use parent View;
 
 
 
-sub set_head
-{
-	my ($self, $head) = @_;
-
-	$head->push(0, charset => q(utf-8));
-}
-
 
 sub form
 {
