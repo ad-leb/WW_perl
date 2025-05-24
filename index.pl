@@ -1,12 +1,13 @@
 #! /usr/bin/perl
 use lib qq($ENV{DOCUMENT_ROOT}/include);
-#use lib q(include);
-use Html;
-#use Data::Dumper;
+use View::First;
 
 
 
-my ($html, $head, $body) = Html->page;
+
+
+
+my ($html, $head, $body) = View::First->new;
 
 $head->push(
 	Html->meta(0, charset => q(utf-8))
@@ -19,6 +20,10 @@ $body->push(
 	),
 	Html->hr
 );
+
+
+$body->push($html->form([{label=>q(<b>Попсон:</b> ), name=>q(pop), value=>q(Hi), type=>q(text)}]));
+
 
 
 

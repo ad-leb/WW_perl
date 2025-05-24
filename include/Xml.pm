@@ -16,7 +16,7 @@ our @dtd = qw(
 sub AUTOLOAD
 {
 	my ($self, $content, %param) = @_;
-	my $name = ($AUTOLOAD =~ /.*::(.*)$/)[0];
+	my ($class, $name) = ($AUTOLOAD =~ /(.*)(?:::SUPER)::(.*)$/);
 	my $single = 0;
 	my $obj;
 
@@ -27,7 +27,10 @@ sub AUTOLOAD
 
 	$obj->{_name} = qq(!$name) if grep /^$name$/i, @dtd;
 
-	bless $obj, $self;
+	ref $self
+		? bless $obj, $class
+		: bless $obj, $self
+	;
 }
 sub DESTROY										{ undef $_[0] }
 
