@@ -15,12 +15,13 @@ our @dtd = qw(
 
 sub AUTOLOAD
 {
-	my ($self, $content, %param) = @_;
+	my $self = shift;
+	my $content = shift if @_ % 2;
+	my %param = @_;
 	my ($class, $name) = ($AUTOLOAD =~ /(.*)(?:::SUPER)::(.*)$/);
-	my $single = 0;
 	my $obj;
 
-	$obj->{_single} = $single;
+	$obj->{_single} = 0;
 	$obj->{_name} = $name;
 	$obj->{_content} = $content;
 	$obj->{$_} = $param{$_} foreach (keys %param);

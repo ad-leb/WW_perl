@@ -1,0 +1,52 @@
+@font-face {
+	font-family: 'basic';
+	src: url(/res/font/SawarabiGothic-Regular.ttf);
+}
+
+
+* {
+	margin: 0;
+	border: 0;
+	padding: 0;
+}
+hr {
+	border: solid 0.3vmin #bbb;
+	border-radius: 1vmax;
+	margin: 1vh 30vw 1vh 30vw;
+}
+br {
+	border: 0.5vmin;
+}
+a {
+	text-decoration: none;
+}
+
+html, body {
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	width: 100vw;
+	min-height: 100vh;
+	text-align: center;
+	font-family: 'basic';
+	font-size: 2vmax;
+	font-weight: 1000;
+}
+
+header {
+	display: flex;
+	flex-direction: row;
+	justify-content: end;
+	background: #4c4;
+	font-size: 2rem;
+}
+
+footer {
+	background: #4c4;
+	font-size: 1rem;
+}
+
+header *, footer * {
+	margin: 4vmin;
+	color: #fff;
+}

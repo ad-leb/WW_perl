@@ -37,13 +37,18 @@ our @single_tag = qw(
 
 sub AUTOLOAD
 {
-	my ($self, $content, %param) = @_;
+	my $self = shift;
+	my $content = shift if @_ % 2;
+	my %param = @_;
 	my $name = ($AUTOLOAD =~ /.*::(.*)$/)[0];
 	my $req = qq(SUPER::$name);
 
-	$param{_single}++ if grep /$name/, @single_tag;
+	$param{_single}++ if grep /^$name$/, @single_tag;
 
-	$self->$req($content, %param);
+	$content 
+		? $self->$req($content, %param)
+		: $self->$req(%param)
+	;
 }
 
 
@@ -54,7 +59,7 @@ sub AUTOLOAD
 sub page
 { 
 	my $page = $_[0]->_([
-		$_[0]->DOCTYPE(0, html),
+		$_[0]->DOCTYPE(0, html=>0),
 		$_[0]->html([
 			$_[0]->head,
 			$_[0]->body
