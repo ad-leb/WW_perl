@@ -76,6 +76,26 @@ sub body										{ (ref $_[0]) ? $_[0]->{_content}[1]{_content}[1] : $_[0]->SUP
 
 
 
+sub get
+{
+	my $this = shift;
+	my $name = shift if @_ % 2;
+	my %param = @_;
+
+	$name =~ /^#(.*)$/
+		and $param{id} = $1
+		and undef $name
+	or $name =~ /^\.(.*)$/
+		and $param{class} = $1
+		and undef $name
+	;
+
+	return ($name) ? $this->SUPER::get($name, %param) : $this->SUPER::get(%param);
+}
+
+
+
+
 
 
 

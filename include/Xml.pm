@@ -87,11 +87,11 @@ sub get
 	my $name = shift if @_ % 2;
 	my %param = @_;
 	my @res;
- 
+
 	push @res, $this if 
 		$this->{_name} eq $name
 			or
-		(keys %param) == (map { $this->{$_} =~ /$param{$_}/ } keys %param)
+		%param and (keys %param) == (map { $this->{$_} =~ /$param{$_}/ } keys %param)
 	;
 
 	push @res, map {

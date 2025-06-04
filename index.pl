@@ -7,18 +7,17 @@ use View::First;
 
 
 
-my $page = View::First->new;
+my ($page, $content) = View::First->new;
 
-$page->push(
-	$page->header,
-	$page->main,
-	$page->footer
+
+$content->push(
+	$page->h2(q(Hey!), style=>q(color: #333)),
+	$page->br,
+	$page->p(q(What's up?), style=>q(color: #888)),
+	$page->img(src=>q(/res/pic/0.png), style=>q(width: 45vmax), title=>q(manga 'City', Arawi Keiichi), async=>0),
 );
 
-map { $_->{href} = q(/BIG_POPSON) } $page->get(href=>q(/pops));
 
-my ($where) = $page->get(_content=>q(right));
-$where->{_content} =~ s/right/left/g;
 
 
 

@@ -14,8 +14,13 @@ sub new
 		$this->meta(charset=>q(utf-8)),
 		$this->link(rel=>q(stylesheet), href=>q(/res/css/form0.css))
 	);
+	$this->push(
+		$this->header,
+		$this->main,
+		$this->footer
+	);
 
-	return $this;
+	return $this, $this->{_content}[1]{_content}[1]{_content}[1];
 }
 
 
