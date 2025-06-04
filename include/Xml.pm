@@ -81,6 +81,27 @@ sub to_text
 }
 
 
+sub get
+{
+	my $this = shift;
+	my $name = shift if @_ % 2;
+	my %param = @_;
+	my @res;
+ 
+	push @res, $this if 
+		$this->{_name} eq $name
+			or
+		(keys %param) == (map { $this->{$_} =~ /$param{$_}/ } keys %param)
+	;
+
+	push @res, map {
+		$_->get($name, %param)
+	} $this->{_content}->@*;
+
+	return @res;
+}
+
+
 
 
 

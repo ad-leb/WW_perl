@@ -15,6 +15,11 @@ $page->push(
 	$page->footer
 );
 
+map { $_->{href} = q(/BIG_POPSON) } $page->get(href=>q(/pops));
+
+my ($where) = $page->get(_content=>q(right));
+$where->{_content} =~ s/right/left/g;
+
 
 
 
