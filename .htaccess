@@ -1,3 +1,9 @@
 Options							+ExecCGI
-AddHandler						cgi-script .pl
-DirectoryIndex					index.pl
+SetHandler						cgi-script
+DirectoryIndex					index
+
+
+
+RewriteEngine					on
+RewriteCond						%{REQUEST_FILE} !/index
+RewriteRule						^(.*)$ index [L]

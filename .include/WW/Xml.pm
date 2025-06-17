@@ -1,4 +1,4 @@
-package Xml;
+package WW::Xml;
 
 
 

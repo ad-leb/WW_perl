@@ -1,5 +1,5 @@
-package Html;
-use parent Xml;
+package WW::Html;
+use parent WW::Xml;
 
 
 

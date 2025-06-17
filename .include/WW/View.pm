@@ -1,5 +1,5 @@
-package View;
-use parent Html;
+package WW::View;
+use parent WW::Html;
 
 
 

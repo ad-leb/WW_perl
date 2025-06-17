@@ -1,0 +1,31 @@
+#! /usr/bin/perl
+use lib qq($ENV{DOCUMENT_ROOT}/.include);
+use WW::DB;
+use View;
+
+
+
+
+
+
+my $content = (WW::DB->get_article_by_id({ id => 1 }))->{1}{content};
+my $page = View->new($content);
+
+
+
+
+
+
+
+
+print qq(Content-Type: text/html\r\n\r\n);
+print STDOUT $page->to_text;
+
+
+
+
+
+
+
+
+__END__
