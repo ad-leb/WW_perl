@@ -1,5 +1,7 @@
 #! /usr/bin/perl
 use lib qq($ENV{DOCUMENT_ROOT}/.include);
+use Digest::SHA qw(sha256_hex);
+use WW::CGI;
 use WW::DB;
 use View;
 
@@ -7,21 +9,81 @@ use View;
 
 
 
-
-my $content = (WW::DB->get_article_by_id({ id => 1 }))->{1}{content};
-my $page = View->new($content);
+my $cgi = WW::CGI->new;
 
 
+# HTTP -> HTTPS
+unless ( $cgi->{scheme} =~ /https/i ) {
+	print STDOUT qq(Status: 301 No, you should use secure connection!\r\n);
+	print STDOUT qq(Location: https://$cgi->{host}$cgi->{uri}\r\n\r\n);
+	exit;
+}
 
 
 
 
 
 
-print qq(Content-Type: text/html\r\n\r\n);
-print STDOUT $page->to_text;
 
 
+if ( $cgi->{method} eq q(POST) ) {
+	print STDOUT qq(Status: 302 No, you not in\r\n);
+	print STDOUT qq(Location: $cgi->{scheme}://$cgi->{host}/auth\r\n\r\n);
+
+} elsif ( $cgi->{method} eq q(GET) ) {
+	my $content;
+
+	if ( $cgi->{uri} =~ /^\/auth\/?/ ) {
+		$content = (&auth_prompt)->to_text;
+	} else {
+		$content = (WW::DB->get_article_by_id({id => 1}))->{1}{content};
+	}
+
+	my $page = View->new($content);
+
+	print STDOUT qq(Content-Type: text/html\r\n\r\n);
+	print STDOUT $page->to_text;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+sub auth_prompt
+{
+	my $form = View->form(action => q(/login), method => q(post));
+
+	$form->push(
+		$form->div(
+			[
+				$form->label(q(Логин: ), for => q(login)),
+				$form->input(type => q(text), name => q(login), id => q(login)),
+			]
+		),
+
+		$form->div(
+			[
+				$form->label(q(Пароль: ), for => q(password)),
+				$form->input(type => q(password), name => q(password), id => q(password)),
+			]
+		),
+
+		$form->div(
+			[
+				$form->input(type => q(submit), value => q(Отправить)),
+			]
+		),
+	);
+
+	return $form;
+}
 
 
 

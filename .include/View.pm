@@ -10,7 +10,7 @@ sub new
 	my $page = $self->SUPER::new;
 	my ($header, $main, $footer) = (
 		$self->header,
-		$self->main,
+		$self->main($content),
 		$self->footer,
 	);
 
@@ -25,9 +25,6 @@ sub new
 	$header->push(
 		$self->get_current_nav,
 		$self->get_global_nav,
-	);
-	$main->push(
-		$self->p($content),
 	);
 	$footer->push(
 		$self->p(q(All right!)),

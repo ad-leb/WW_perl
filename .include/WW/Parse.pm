@@ -1,4 +1,4 @@
-package Convert;
+package WW::Parse;
 
 
 my $mark = q(__mark) . time . time . q(__);
@@ -79,6 +79,60 @@ sub md_code_push
 	}
 }
 
+
+
+
+
+sub http_urlencoded
+{
+    map { /(\w+)=([\w\+\%\.]*)/sg } @_;
+}
+sub http_data
+{
+    my $bound = q(--) . ($ENV{CONTENT_TYPE} =~ /boundary=(.*)/)[0];
+    my $end = $bound . q(--);
+    my %data;
+
+    {
+        my $name = 1;
+
+        foreach ( @_ )
+        {
+            /^$/ and next;
+            $name = (/name="(.*)"/)[0] and next if !$name;
+
+            /$end/
+                and last
+            or /$bound/
+                and undef $name
+            or $name
+                and $data{$name} .= $_
+            ;
+        }
+        map { $_ =~ s/(^\s*|\s*$)//sg } values %data;
+    }
+
+    return \%data;
+}
+sub http_plain
+{
+    my %data;
+
+    {
+        my $name = 1;
+        foreach (@_)
+        {
+            if ( /^(\w+)=(.*)/ ) {
+                $name = $1;
+                $data{$name} = $2;
+            } else {
+                $data{$name} .= $_;
+            }
+        }
+    }
+
+    return \%data;
+}
 
 
 
