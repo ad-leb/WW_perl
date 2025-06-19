@@ -9,7 +9,7 @@ our $cgi;
 
 
 
-sub new
+sub AUTOLOAD
 { 
  	return $cgi		if ref $cgi and $cgi->isa($_[0]);
 
