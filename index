@@ -4,18 +4,18 @@ use Digest::SHA qw(sha256_hex);
 use WW::CGI;
 use WW::DB;
 use View;
+use Sub;
 
 
 
 
 
-my $cgi = WW::CGI->new;
 
 
 # HTTP -> HTTPS
-unless ( $cgi->{scheme} =~ /https/i ) {
+unless ( $CGI->{scheme} =~ /https/i ) {
 	print STDOUT qq(Status: 301 No, you should use secure connection!\r\n);
-	print STDOUT qq(Location: https://$cgi->{host}$cgi->{uri}\r\n\r\n);
+	print STDOUT qq(Location: https://$CGI->{host}$CGI->{uri}\r\n\r\n);
 	exit;
 }
 
@@ -26,23 +26,12 @@ unless ( $cgi->{scheme} =~ /https/i ) {
 
 
 
-if ( $cgi->{method} eq q(POST) ) {
+if ( $CGI->{method} eq q(POST) ) {
 	print STDOUT qq(Status: 302 No, you not in\r\n);
-	print STDOUT qq(Location: $cgi->{scheme}://$cgi->{host}/auth\r\n\r\n);
+	print STDOUT qq(Location: $CGI->{scheme}://$CGI->{host}/auth\r\n\r\n);
 
-} elsif ( $cgi->{method} eq q(GET) ) {
-	my $content;
-
-	if ( $cgi->{uri} =~ /^\/auth\/?/ ) {
-		$content = (&auth_prompt)->to_text;
-	} else {
-		$content = (WW::DB->get_article_by_id({id => 1}))->{1}{content};
-	}
-
-	my $page = View->new($content);
-
-	print STDOUT qq(Content-Type: text/html\r\n\r\n);
-	print STDOUT $page->to_text;
+} elsif ( $CGI->{method} eq q(GET) ) {
+	Sub->auth;
 }
 
 

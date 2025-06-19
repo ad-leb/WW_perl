@@ -9,27 +9,38 @@ our $cgi;
 
 
 
-sub AUTOLOAD
+sub import 
+{
+	no strict q(refs);
+	my ($pack) = caller;
+
+	$cgi = &get_data if !$cgi;
+	${qq($pack\:\:CGI)} = $cgi;
+}
+
+
+sub get_data
 { 
- 	return $cgi		if ref $cgi and $cgi->isa($_[0]);
+	return $cgi if $cgi;
 
 	$cgi->{GET} = $_[0]->GET;
 	$cgi->{POST} = $_[0]->POST;
 	$cgi->{POST_raw} = $_[0]->POST_raw;
 	$cgi->{host} = $ENV{HTTP_HOST};
-	$cgi->{port} = $ENV{HTTP_X_FORWARDED_PORT} or $ENV{SERVER_PORT};
-	$cgi->{scheme} = $ENV{HTTP_X_FORWARDED_PROTO} or $ENV{REQUEST_SCHEME};
+	$cgi->{port} = $ENV{HTTP_X_FORWARDED_PORT} || $ENV{SERVER_PORT};
+	$cgi->{scheme} = $ENV{HTTP_X_FORWARDED_PROTO} || $ENV{REQUEST_SCHEME};
 	$cgi->{proto} = $ENV{SERVER_PROTOCOL};
-	$cgi->{remote_addr} = $ENV{HTTP_X_FORWARDED_ADDR} or $ENV{HTTP_X_REAL_IP} or $ENV{REMOTE_ADDR};
+	$cgi->{remote_addr} = $ENV{HTTP_X_FORWARDED_ADDR} || $ENV{HTTP_X_REAL_IP} || $ENV{REMOTE_ADDR};
 	$cgi->{method} = $ENV{REQUEST_METHOD};
 	$cgi->{root} = $ENV{DOCUMENT_ROOT};
 	$cgi->{uri} = $ENV{REQUEST_URI};
 	$cgi->{query} = $ENV{QUERY_STRING};
 	$cgi->{file} = $ENV{SCRIPT_NAME};
-	$cgi->{pwd} = ($ENV{SCRIPT_FILENAME} =~ /(.*)\//)[0];
-	bless $cgi, $_[0]; 
 
-	return $cgi;
+	$cgi->{pwd} = ($ENV{SCRIPT_FILENAME} =~ /(.*)\//)[0];
+	($cgi->{uri_sub}, $cgi->{uri_path}) = ($ENV{REQUEST_URI} =~ /^\/([\w\-]+)\/?(.*)\/?$/);
+
+	bless $cgi, $_[0]; 
 }
 
 
