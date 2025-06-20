@@ -72,6 +72,26 @@ sub get_global_nav
 
 
 
+sub error_404
+{
+	my ($self) = @_;
+
+	print STDOUT qq(Status: 404 No that action, dude\r\n);
+	print STDOUT qq(Content-Type: text/html\r\n\r\n);
+	print STDOUT ($self->new(qq(<hr/><h3>Here is no that action, dude :S</h3><hr/>)))->to_text;
+	exit;
+}
+sub error_500
+{
+	my ($self) = @_;
+
+	print STDOUT qq(Status: 500 Wow, got an error\r\n);
+	print STDOUT qq(Content-Type: text/html\r\n\r\n);
+	print STDOUT ($self->new(qq(<hr/><h3>Oops, got error! HTTP: 500</h3><hr/>)))->to_text;
+	exit;
+}
+
+
 
 
 

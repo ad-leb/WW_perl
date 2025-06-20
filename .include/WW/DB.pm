@@ -54,6 +54,12 @@ sub AUTOLOAD
 
     return $sth->fetchall_hashref(q(id)) if $sql =~ /^SELECT/;
 }
+sub DESTROY
+{
+	$dbh->disconnect;
+	undef $dbh;
+	undef $data;
+}
 
 
 

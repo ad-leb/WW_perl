@@ -1,23 +1,6 @@
 #! /usr/bin/perl
 use lib qq($ENV{DOCUMENT_ROOT}/.include);
-use Digest::SHA qw(sha256_hex);
-use WW::CGI;
-use WW::DB;
-use View;
-use Sub;
-
-
-
-
-
-
-
-# HTTP -> HTTPS
-unless ( $CGI->{scheme} =~ /https/i ) {
-	print STDOUT qq(Status: 301 No, you should use secure connection!\r\n);
-	print STDOUT qq(Location: https://$CGI->{host}$CGI->{uri}\r\n\r\n);
-	exit;
-}
+use Controller;
 
 
 
@@ -26,13 +9,12 @@ unless ( $CGI->{scheme} =~ /https/i ) {
 
 
 
-if ( $CGI->{method} eq q(POST) ) {
-	print STDOUT qq(Status: 302 No, you not in\r\n);
-	print STDOUT qq(Location: $CGI->{scheme}://$CGI->{host}/auth\r\n\r\n);
 
-} elsif ( $CGI->{method} eq q(GET) ) {
-	Sub->auth;
-}
+my $answer;
+
+$answer = WW::Controller->handle;
+WW::Controller->respond($answer);
+
 
 
 

@@ -4,6 +4,7 @@ use WW::Parse;
 
 
 our $cgi;
+our @packs;
 
 
 
@@ -16,6 +17,13 @@ sub import
 
 	$cgi = &get_data if !$cgi;
 	${qq($pack\:\:CGI)} = $cgi;
+
+	push @packs, $pack;
+}
+sub DESTROY
+{
+	undef ${qq($_\:\:CGI)} foreach @packs;
+	undef $cgi;
 }
 
 
@@ -38,7 +46,7 @@ sub get_data
 	$cgi->{file} = $ENV{SCRIPT_NAME};
 
 	$cgi->{pwd} = ($ENV{SCRIPT_FILENAME} =~ /(.*)\//)[0];
-	($cgi->{uri_sub}, $cgi->{uri_path}) = ($ENV{REQUEST_URI} =~ /^\/([\w\-]+)\/?(.*)\/?$/);
+	($cgi->{uri_space}, $cgi->{uri_path}) = ($ENV{REQUEST_URI} =~ /^\/([\w\-]+)\/?(.*)\/?$/);
 
 	bless $cgi, $_[0]; 
 }

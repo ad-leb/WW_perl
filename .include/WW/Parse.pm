@@ -8,6 +8,13 @@ my $mark = q(__mark) . time . time . q(__);
 
 
 
+sub DESTROY						{ }
+
+
+
+
+
+
 sub md_to_html
 {
 	my ($self, $txt) = @_;

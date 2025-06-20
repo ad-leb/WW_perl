@@ -60,7 +60,7 @@ sub to_text
 	my $txt;
 
 	return $this if !ref $this;
-	return map $_->to_text, $this->{_content}->@* if $this->{_name} eq q(_);
+	return join q(), map $_->to_text, $this->{_content}->@* if $this->{_name} eq q(_);
 
 	$txt .= qq(<$this->{_name});
 	map {
@@ -70,10 +70,14 @@ sub to_text
 	$txt .= q(>);
 	
 	unless ( $this->{_single} ) {
-		ref $this->{_content}
-			and	$txt .= join q(), map { $_->to_text } $this->{_content}->@*
-			or	$txt .= $this->{_content}
-		;
+		if ( ref $this->{_content} eq q(ARRAY) ) {
+			$txt .= join q(), map { $_->to_text } $this->{_content}->@*;
+		} elsif ( ref $this->{_content} ) {
+			$txt .= $this->{_content}->to_text;
+		} else {
+			$txt .= $this->{_content};
+		}
+
 		$txt .= qq(</$this->{_name}>);
 	}
 
