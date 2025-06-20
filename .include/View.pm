@@ -4,10 +4,12 @@ use parent WW::View;
 
 
 
-sub new 
+
+
+sub page
 {
 	my ($self, $content) = @_;
-	my $page = $self->SUPER::new;
+	my $page = $self->SUPER::page;
 	my ($header, $main, $footer) = (
 		$self->header,
 		$self->main($content),
@@ -17,7 +19,6 @@ sub new
 
 	$page->set(
 		$self->meta(charset => q(utf-8)),
-		$self->title(q(Rebuild)),
 		$self->link(rel => q(stylesheet), href => q(/res/css/fresh0.css)),
 	);
 	$page->push($header, $main, $footer);
@@ -30,11 +31,8 @@ sub new
 		$self->p(q(All right!)),
 	);
 
-
 	return $page;
 }
-
-
 sub get_current_nav
 {
 	my $self = shift;
@@ -56,7 +54,7 @@ sub get_global_nav
 {
 	my $self = shift;
 	my $nav = $self->nav(class => q(global));
-	my @dumb = qw(awebo wako);
+	my @dumb = qw(account wako);
 
 	foreach my $pop (@dumb)
 	{
@@ -66,29 +64,6 @@ sub get_global_nav
 	}
 
 	return $nav;
-}
-
-
-
-
-
-sub error_404
-{
-	my ($self) = @_;
-
-	print STDOUT qq(Status: 404 No that action, dude\r\n);
-	print STDOUT qq(Content-Type: text/html\r\n\r\n);
-	print STDOUT ($self->new(qq(<hr/><h3>Here is no that action, dude :S</h3><hr/>)))->to_text;
-	exit;
-}
-sub error_500
-{
-	my ($self) = @_;
-
-	print STDOUT qq(Status: 500 Wow, got an error\r\n);
-	print STDOUT qq(Content-Type: text/html\r\n\r\n);
-	print STDOUT ($self->new(qq(<hr/><h3>Oops, got error! HTTP: 500</h3><hr/>)))->to_text;
-	exit;
 }
 
 

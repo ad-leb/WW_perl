@@ -92,7 +92,14 @@ sub md_code_push
 
 sub http_urlencoded
 {
-    map { /(\w+)=([\w\+\%\.]*)/sg } @_;
+	my %data;
+
+	foreach my $row (@_)
+	{
+    	map { $data{$1} = $2 if /(\w+)=([\w\+\%\.]*)/sg } split q(\&), $row;
+	}
+
+	return \%data;
 }
 sub http_data
 {

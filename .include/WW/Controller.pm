@@ -16,11 +16,11 @@ sub handle
 	my ($self) = @_;
 	my ($pack, $path, $method);
 
-	$pack = $CGI->{uri_space} || q(root);	$pack =~ s/^(\w)/\U$1/;
-	$path = $CGI->{uri_path};
-	$method = lc $CGI->{method};
+	$pack = $WW::env{uri_space} || q(root);	$pack =~ s/^(\w)/\U$1/;
+	$path = $WW::env{uri_path};
+	$method = lc $WW::env{method};
 
-	return &{$method}($pack, $path, $method);
+	return $pack->$method($path);
 }
 
 
@@ -37,33 +37,6 @@ sub respond
 
 
 
-sub get
-{
-	my ($pack, $path, $method) = @_;
-	my ($page, $content, $text);
-
-	$content = $pack->$method($path);
-	$page = View->new($content);
-	$text = $page->to_text;
-
-	return { 
-		header 					=> {
-			q(Status) 			=> q[200 OK :)], 
-			q(Content-Type) 	=> q(text/html; charset=utf-8),
-		},
-		content 				=> $text,
-	};
-}
-sub post
-{
-	return {
-		header 					=> {
-			q(Status) 			=> q[204 Still working on it..], 
-			q(Content-Type) 	=> q(text/plain; charset=utf-8),
-		},
-		content 				=> qq(Bada-boom\n),
-	};
-}
 
 
 
@@ -74,27 +47,40 @@ sub post
 
 
 
+
+
+
+
+
+#################################################################
+# 						GLOBAL									#
+#################################################################
 
 
 
 
 sub UNIVERSAL::AUTOLOAD
 {
-	our $try++;		print STDERR q(More than 32 calls of autoload. Is it ok?) and View->error_500 if $try > 32;
-
 	my ($pack) = @_;
 	my ($sub) = $UNIVERSAL::AUTOLOAD =~ /^.*\:\:(.*)$/;
 	my $res;
 
-	eval qq(use App::$pack);			
-	View->error_404 if $@;
+	our $try++;		print STDERR qq(More than 32 calls of autoload ($pack->$sub). Is it ok?) and exit if $try > 32;
 
-	$res = $pack->$sub or View->error_500;
+	if ( -e qq($WW::env{root}/.include/App/$pack.pm) ) {
+		eval qq(use App::$pack);
+		print STDERR qq([$pack\-\>$sub] $@ ($!)) and View->error_500 if $@;
+		$res = $pack->$sub or print STDERR qq([$pack->$sub] $@ ($!)) and View->error_500;
+	} else {
+		print STDERR qq([$pack\-\>$sub] $@ ($!)) and View->error_404;
+	}
 
 	$try--;
 	return $res;
 }
-sub UNIVERSAL::DESTROY			{ undef $ref }
+sub UNIVERSAL::DESTROY			{ undef $_[0] }
+
+
 
 
 

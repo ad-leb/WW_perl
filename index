@@ -1,6 +1,7 @@
 #! /usr/bin/perl
 use lib qq($ENV{DOCUMENT_ROOT}/.include);
 use Controller;
+use View;
 
 
 
@@ -12,8 +13,10 @@ use Controller;
 
 my $answer;
 
-$answer = WW::Controller->handle;
-WW::Controller->respond($answer);
+$answer = Controller->handle;
+$answer = View->wrap($answer);
+
+Controller->respond($answer);
 
 
 
