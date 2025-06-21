@@ -109,7 +109,7 @@ sub http_urlencoded
 
 	return \%data;
 }
-sub http_data
+sub http_data			# DON'T WORK well
 {
 	my $bound = q(--) . ($ENV{CONTENT_TYPE} =~ /boundary=(.*)/)[0];
 	my $end = $bound . q(--);
@@ -139,12 +139,13 @@ sub http_data
 sub http_plain
 {
 	my %data;
+	my @raw = map { split qq(\r\n) } @_;
 
 	{
 		my $name = 1;
-		foreach (@_)
+		foreach (@raw)
 		{
-			if ( /^(\w+)=(.*)/ ) {
+			if ( /^(\w+)=(.*)\s*/ ) {
 				$name = $1;
 				$data{$name} = $2;
 			} else {

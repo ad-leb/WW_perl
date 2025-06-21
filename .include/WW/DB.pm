@@ -24,6 +24,9 @@ our $data = {
 	},
 	request						=> {
 		get_article_by_id		=> q(SELECT * FROM article WHERE id=$id),
+		get_user_by_digest		=> q(SELECT id, name, pretty, created FROM user WHERE digest="$digest"),
+		get_user_by_name		=> q(SELECT id, salt, digest FROM user WHERE name="$name"),
+		new_user				=> q(INSERT INTO user (name, salt, digest, pretty) VALUES ("$name", "$salt", "$digest", "$pretty")),
 	},
 };
 

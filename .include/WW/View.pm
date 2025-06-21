@@ -1,6 +1,7 @@
 package WW::View;
 use parent WW::Html;
 use WW;
+use JSON;
 
 
 
@@ -9,17 +10,11 @@ use WW;
 
 sub wrap
 {
-	my ($self, $obj) = @_;					return q() if $obj->{header}{Location};
+	my ($self, $obj) = @_;
 	my $mime = ($obj->{header}{q(Content-Type)} =~ /^([\w\/]*)/)[0];
 
-	if ( $mime eq q(text/html) ) {
-		my $page;
-
-		$page = $self->page($obj->{content});
-		$page->set($_) foreach $obj->{meta}->@*;
-
-		$obj->{content} = $page->to_text;
-	}
+	return $self->wrap_html($obj) if $mime eq q(text/html);
+	return $self->wrap_json($obj) if $mime eq q(application/json);
 
 	return $obj;
 }
@@ -44,6 +39,28 @@ sub shift										{ my $this = shift; my $obj = ($this->{_name} eq q(_)) ? $thi
 
 
 
+
+
+sub wrap_html
+{
+	my ($self, $obj) = @_;
+	my $page;
+
+	$page = $self->page($obj->{content});
+	$page->set($_) foreach $obj->{meta}->@*;
+
+	$obj->{content} = $page->to_text;
+
+	return $obj;
+}
+sub wrap_json
+{
+	my ($self, $obj) = @_;
+
+	$obj->{content} = to_json($obj->{content}, {allow_blessed => 1, pretty => 1, utf8 => 1});
+
+	return $obj;
+}
 
 
 

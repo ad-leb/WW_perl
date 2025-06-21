@@ -10,14 +10,15 @@ use WW;
 
 
 
-sub do_cycle
+sub do
 {
-	my ($self, $view) = @_;
+	my ($self, $view, $model) = @_;
 
 	$WW::view = $view;
+	$WW::model = $model;
 
-	Controller->handle;
-	Controller->respond;
+	$self->handle;
+	$self->respond;
 }
 
 

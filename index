@@ -2,6 +2,8 @@
 use lib qq($ENV{DOCUMENT_ROOT}/.include);
 use Controller;
 use View;
+use WW::DB;
+use Data::Dumper;
 
 
 
@@ -11,7 +13,7 @@ use View;
 
 
 
-Controller->do_cycle(View);
+Controller->do(View);
 
 
 

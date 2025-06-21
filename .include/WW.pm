@@ -26,8 +26,32 @@ our $str = {
 		html				=> q(HTTP 500: Wow, got an error..),
 	},
 };
-our %env;
+our %env = (
+	GET						=> WW->GET,
+	POST_raw				=> WW->POST_raw,
+	COOKIE					=> WW->COOKIE,
+
+	host					=> $ENV{HTTP_HOST},
+	port					=> ($ENV{HTTP_X_FORWARDED_PORT} || $ENV{SERVER_PORT}),
+	scheme					=> ($ENV{HTTP_X_FORWARDED_PROTO} || $ENV{REQUEST_SCHEME}),
+	proto					=> $ENV{SERVER_PROTOCOL},
+	remote_addr				=> ($ENV{HTTP_X_FORWARDED_ADDR} || $ENV{HTTP_X_REAL_IP} || $ENV{REMOTE_ADDR}),
+	method					=> $ENV{REQUEST_METHOD},
+	root					=> $ENV{DOCUMENT_ROOT},
+	uri						=> $ENV{REQUEST_URI},
+	query					=> $ENV{QUERY_STRING},
+	file					=> $ENV{SCRIPT_NAME},
+
+	pwd						=> ($ENV{SCRIPT_FILENAME} =~ /(.*)\//)[0],
+	uri_space				=> ($ENV{REQUEST_URI} =~ /^\/([\w\-]+)/)[0] || q(), 
+	uri_path				=> ($ENV{REQUEST_URI} =~ /^\/[\w\-]+\/?(.*)\/?$/)[0] || q(),
+
+	session					=> $env{COOKIE}{session},
+
+	user					=> $WW::model->{user},
+);
 our $view;
+our $model;
 our $response = {
 	status					=> 500,
 	header					=> {},
@@ -39,36 +63,9 @@ our $response = {
 
 
 
-sub import 
-{
-	$_[0]->fill_env if !%env;
-}
+sub import						{ $env{POST} = $_[0]->POST }
 sub DESTROY						{ undef $cgi }
 
-
-sub fill_env
-{
-	$env{GET} = $_[0]->GET;
-	$env{POST_raw} = $_[0]->POST_raw;
-
-	$env{POST} = $_[0]->POST;
-	$env{COOKIE} = $_[0]->COOKIE;
-	$env{host} = $ENV{HTTP_HOST};
-	$env{port} = $ENV{HTTP_X_FORWARDED_PORT} || $ENV{SERVER_PORT};
-	$env{scheme} = $ENV{HTTP_X_FORWARDED_PROTO} || $ENV{REQUEST_SCHEME};
-	$env{proto} = $ENV{SERVER_PROTOCOL};
-	$env{remote_addr} = $ENV{HTTP_X_FORWARDED_ADDR} || $ENV{HTTP_X_REAL_IP} || $ENV{REMOTE_ADDR};
-	$env{method} = $ENV{REQUEST_METHOD};
-	$env{root} = $ENV{DOCUMENT_ROOT};
-	$env{uri} = $ENV{REQUEST_URI};
-	$env{query} = $ENV{QUERY_STRING};
-	$env{file} = $ENV{SCRIPT_NAME};
-
-	$env{pwd} = ($ENV{SCRIPT_FILENAME} =~ /(.*)\//)[0];
-	($env{uri_space}, $env{uri_path}) = ($ENV{REQUEST_URI} =~ /^\/([\w\-]+)\/?(.*)\/?$/);
-
-	$env{session} = $env{COOKIE}{session};
-}
 
 
 sub GET		 					{ WW::Parse::http_urlencoded($ENV{REQUEST_URI}) }
