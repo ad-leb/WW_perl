@@ -90,62 +90,70 @@ sub md_code_push
 
 
 
+sub http_cookie
+{
+	my %data;
+
+	map { $data{$1} = $2 if /(\w+)=(\w+)/ } split q(;), $_[0];
+
+	return \%data;
+}
 sub http_urlencoded
 {
 	my %data;
 
 	foreach my $row (@_)
 	{
-    	map { $data{$1} = $2 if /(\w+)=([\w\+\%\.]*)/sg } split q(\&), $row;
+		map { $data{$1} = $2 if /(\w+)=([\w\+\%\.]*)/sg } split q(\&), $row;
 	}
 
 	return \%data;
 }
 sub http_data
 {
-    my $bound = q(--) . ($ENV{CONTENT_TYPE} =~ /boundary=(.*)/)[0];
-    my $end = $bound . q(--);
-    my %data;
+	my $bound = q(--) . ($ENV{CONTENT_TYPE} =~ /boundary=(.*)/)[0];
+	my $end = $bound . q(--);
+	my %data;
 
-    {
-        my $name = 1;
+	{
+		my $name = 1;
 
-        foreach ( @_ )
-        {
-            /^$/ and next;
-            $name = (/name="(.*)"/)[0] and next if !$name;
+		foreach ( @_ )
+		{
+			/^$/ and next;
+			$name = (/name="(.*)"/)[0] and next if !$name;
 
-            /$end/
-                and last
-            or /$bound/
-                and undef $name
-            or $name
-                and $data{$name} .= $_
-            ;
-        }
-        map { $_ =~ s/(^\s*|\s*$)//sg } values %data;
-    }
+			/$end/
+				and last
+			or /$bound/
+				and undef $name
+			or $name
+				and $data{$name} .= $_
+			;
+		}
+		map { $_ =~ s/(^\s*|\s*$)//sg } values %data;
+	}
 
-    return \%data;
+	return \%data;
 }
 sub http_plain
 {
-    my %data;
+	my %data;
 
-    {
-        my $name = 1;
-        foreach (@_)
-        {
-            if ( /^(\w+)=(.*)/ ) {
-                $name = $1;
-                $data{$name} = $2;
-            } else {
-                $data{$name} .= $_;
-            }
-        }
-    }
+	{
+		my $name = 1;
+		foreach (@_)
+		{
+			if ( /^(\w+)=(.*)/ ) {
+				$name = $1;
+				$data{$name} = $2;
+			} else {
+				$data{$name} .= $_;
+			}
+		}
+	}
 
-    return \%data;
+	return \%data;
 }
 
 

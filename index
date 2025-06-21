@@ -11,12 +11,7 @@ use View;
 
 
 
-my $answer;
-
-$answer = Controller->handle;
-$answer = View->wrap($answer);
-
-Controller->respond($answer);
+Controller->do_cycle(View);
 
 
 

@@ -1,6 +1,5 @@
 package Account;
-use WW::View;
-use WW::DB;
+use WW;
 use Digest::SHA qw(sha256_hex);
 use JSON;
 
@@ -9,7 +8,68 @@ use JSON;
 
 sub get
 {
-	my $form = View->form(action => q(/account), method => q(post));
+	if ( $WW::env{session} and &session_is_ok ) {
+		return &hello;
+	} else {
+		return &login;
+	}
+}
+
+
+sub post
+{
+	my ($salt, $target) = WW::DB->get_digest_by_name({name => $WW::env{POST}{name}});
+	my $attempt = sha256_hex($salt . $WW::env{POST}{password});
+	my $data = to_json({
+			name				=> $WW::env{POST}{name},
+			password			=> $WW::env{POST}{password},
+			salt				=> $salt,
+			target				=> $target,
+			got					=> $attempt,
+	});
+
+	return {
+		status					=> 202,
+		header					=> {
+			q(Content-Type)		=> q(application/json; charset=utf-8),
+		},
+		content					=> $data,
+	};
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+sub hello
+{
+	return {
+		status					=> 200,
+		header					=> {
+			q(Content-Type)		=> q(text/html; charset=utf-8),
+		},
+		meta					=> [
+			WW::View->title(q(Аутентификация)),
+		],
+		content					=> [
+			WW::View->h2(q(Аутентификация)), 
+			WW::View->br, 
+			$form,
+		],
+	};
+}
+sub login
+{
+	my $form = WW::View->form(action => q(/account), method => q(post));
 	
 	$form->push(
 		$form->div(
@@ -32,41 +92,18 @@ sub get
 	);
 	
 	return {
+		status					=> 200,
 		header					=> {
-			q(Status)			=> q[200 Ok :)],
 			q(Content-Type)		=> q(text/html; charset=utf-8),
 		},
 		meta					=> [
-			View->title(q(Аутентификация)),
-			View->link(rel => q(stylesheet), href => q(test_link)),
+			WW::View->title(q(Аутентификация)),
 		],
 		content					=> [
-			View->h2(q(Аутентификация)), 
-			View->br, 
-			$form
+			WW::View->h2(q(Аутентификация)),
+			WW::View->br, 
+			$form,
 		],
-	};
-}
-
-
-sub post
-{
-	my ($salt, $target) = WW::DB->get_digest_by_name({name => $WW::env{POST}{name}});
-	my $attempt = sha256_hex($salt . $WW::env{POST}{password});
-	my $data = to_json({
-			name				=> $WW::env{POST}{name},
-			password			=> $WW::env{POST}{password},
-			salt				=> $salt,
-			target				=> $target,
-			got					=> $attempt,
-	}, {pretty => 1});
-
-	return {
-		header					=> {
-			q(Status)			=> q(202 Look data in plain: no need in View yet),
-			q(Content-Type)		=> q(application/json; charset=utf-8),
-		},
-		content					=> $data,
 	};
 }
 

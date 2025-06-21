@@ -3,13 +3,6 @@ package Root;
 
 
 
-sub _root
-{
-	my $content = View->new(q(Hi! What's up?));
-
-	print STDOUT qq(Content-Type: text/html\r\n\r\n);
-	print STDOUT $content->to_text;
-}
 
 
 sub get
@@ -17,8 +10,8 @@ sub get
 	my ($self, $path) = @_;
 
 	return {
+		status					=> 200,
 		header					=> {
-			q(Status)			=> q[200 Ok :)],
 			q(Content-Type)		=> q(text/html; charset=utf-8),
 		},
 		meta					=> [

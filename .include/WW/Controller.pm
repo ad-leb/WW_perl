@@ -1,11 +1,24 @@
 package WW::Controller;
-use WW::CGI;
-use View;
+use WW;
 
 
 
 
 
+
+
+
+
+
+sub do_cycle
+{
+	my ($self, $view) = @_;
+
+	$WW::view = $view;
+
+	Controller->handle;
+	Controller->respond;
+}
 
 
 
@@ -20,21 +33,40 @@ sub handle
 	$path = $WW::env{uri_path};
 	$method = lc $WW::env{method};
 
-	return $pack->$method($path);
+	$WW::response = $pack->$method($path);
 }
 
 
 
 sub respond
 {
-	my ($self, $response) = @_;
+	my ($self) = @_;
 
-	print STDOUT map qq($_: $response->{header}{$_}\r\n), keys $response->{header}->%*;
+	$WW::view->wrap($WW::response);
+
+	print STDOUT qq(Status: $WW::response->{status} $WW::str->{$WW::response->{status}}{http}\r\n);
+	print STDOUT map qq($_: $WW::response->{header}{$_}\r\n), keys $WW::response->{header}->%*;
 	print STDOUT qq(\r\n);
-	print STDOUT $response->{content};
+	print STDOUT $WW::response->{content};
 }
 
 
+
+sub error
+{
+	my ($self, $status) = @_;
+
+	$WW::response = {
+		status					=> $status,
+		header					=> {
+			q(Content-Type)		=> q(text/html; charset=utf-8),
+		},
+		content					=> [ $WW::view->hr, $WW::view->h4(qq($WW::str->{$status}{html})), $WW::view->hr ],
+	};
+
+	&respond;
+	exit;
+}
 
 
 
@@ -65,14 +97,15 @@ sub UNIVERSAL::AUTOLOAD
 	my ($sub) = $UNIVERSAL::AUTOLOAD =~ /^.*\:\:(.*)$/;
 	my $res;
 
-	our $try++;		print STDERR qq(More than 32 calls of autoload ($pack->$sub). Is it ok?) and exit if $try > 32;
+	our $try++;		print STDERR qq(More than 32 calls of autoload ($pack->$sub). Is it ok?) and return WW::Controller->error(500) if $try > 32;
 
 	if ( -e qq($WW::env{root}/.include/App/$pack.pm) ) {
 		eval qq(use App::$pack);
-		print STDERR qq([$pack\-\>$sub] $@ ($!)) and View->error_500 if $@;
-		$res = $pack->$sub or print STDERR qq([$pack->$sub] $@ ($!)) and View->error_500;
+		print STDERR qq([$pack\-\>$sub] $@ ($!)) and return WW::Controller->error(500) if $@ =~ /\w/;
+		$res = $pack->$sub 
+			or print STDERR qq([$pack->$sub] $@ ($!)) and return WW::Controller->error(500);
 	} else {
-		print STDERR qq([$pack\-\>$sub] $@ ($!)) and View->error_404;
+		print STDERR qq([$pack\-\>$sub] $@ ($!)) and return WW::Controller->error(404);
 	}
 
 	$try--;

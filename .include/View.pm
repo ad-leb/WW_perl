@@ -5,10 +5,12 @@ use parent WW::View;
 
 
 
+sub me 							{ bless {}, $_[0] }
 
 sub page
 {
 	my ($self, $content) = @_;
+	print STDERR qq(MARK 0: $content);
 	my $page = $self->SUPER::page;
 	my ($header, $main, $footer) = (
 		$self->header,
@@ -42,6 +44,7 @@ sub get_current_nav
 	$nav->push($self->a(q(/), href => q(/)));
 	foreach my $part (split q(/), $ENV{REQUEST_URI})
 	{
+		$part =~ s/\?.*//g;
 		$nav->push(
 			$self->a($part, href => qq($ENV{REQUEST_SCHEME}://$ENV{HTTP_HOST}$prev/$part)),
 		) if $part;
