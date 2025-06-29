@@ -44,7 +44,7 @@ our %env = (
 
 	pwd						=> ($ENV{SCRIPT_FILENAME} =~ /(.*)\//)[0],
 	uri_space				=> ($ENV{REQUEST_URI} =~ /^\/([\w\-]+)/)[0] || q(), 
-	uri_path				=> ($ENV{REQUEST_URI} =~ /^\/[\w\-]+\/?(.*)\/?$/)[0] || q(),
+	uri_path				=> ($ENV{REQUEST_URI} =~ /^\/[\w\-]+\/?(.*?)(\/|$)/)[0] || q(),
 
 	session					=> $env{COOKIE}{session},
 

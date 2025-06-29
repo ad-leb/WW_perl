@@ -1,4 +1,5 @@
 package WW::Parse;
+use JSON;
 
 
 my $mark = q(__mark) . time . time . q(__);
@@ -65,7 +66,7 @@ sub md_code_pull
 			$block->{content} = $+;		
 
 		$block->{content} =~ s/&/&amp;/mg;	
-		$block->{content} =~ s/</&lt;/mg;	
+		$block->{content} =~ s/</&lt;/mg;
 		$block->{content} =~ s/>/&gt;/mg;
 
 		s/\n``` ?(\w*)(.*?)\n```\r?\n/\n$mark\n/s;
@@ -156,7 +157,10 @@ sub http_plain
 
 	return \%data;
 }
-
+sub http_json
+{
+	return from_json($_[0]);
+}
 
 
 
